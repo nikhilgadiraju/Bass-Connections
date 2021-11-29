@@ -1,21 +1,36 @@
+# ** The only variables that the user should have to change is the file paths found in the below section (below imports) as well as those in the 'loopscript.sh' shell script
+
 # %% Imports
 from __future__ import print_function
 import os
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import SimpleITK as sitk
 from itertools import product
 import statistics
 import nibabel as nib
 
 #%% Defining file paths
-#file_path = "D:\Personal\\School\\Duke\\2021-2022\\Courses\\Bass Connections (Briansoc)\\RARE_BASS\\RARE_BASS" #Location of all data (Volumes AND Labels)
-file_path = "/mnt//d//Personal//School//Duke//2021-2022//Courses//Bass Connections (Briansoc)//RARE_BASS//RARE_BASS" #Location of all data (Volumes AND Labels)
-file_names = next(os.walk(file_path), (None, None, []))[2]
+# MAIN file path; this is where this python script is found as well as the folders indicated in the below file paths
+fpath_main = "/mnt//d//Personal//School//Duke//2021-2022//Bass Connections"
 
-# Read Tube-Normalized CSV (includes noramlized filanmes and mRatio values)
-df = pd.read_csv("/mnt//d//Personal//School//Duke//2021-2022//Courses//Bass Connections (Briansoc)//RARE_BASS//NORMALIZED//norm_vals.csv")
+# INPUT file paths
+fpath_dat = "/mnt//d//Personal//School//Duke//2021-2022//Courses//Bass Connections (Briansoc)//RARE_BASS//RARE_BASS" #Location of all data (Volumes AND Labels)
+fpath_norm_csv = "/mnt//d//Personal//School//Duke//2021-2022//Courses//Bass Connections (Briansoc)//RARE_BASS//NORMALIZED//norm_vals.csv"
+
+# OUTPUT file paths
+fpath_norm = "/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//NORMALIZED"
+fpath_binmask = "/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//BINARY MASK"
+fpath_bfc_img = "/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//BFCANTS"
+fpath_bfield = "/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//BFCANTSBIAS"
+fpath_reg_csv = "/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//REGIONAL DATA"
+
+
+# %% Read input files
+# Save all brain volume and their assoiated label files' names into a list
+file_names = next(os.walk(fpath_dat), (None, None, []))[2]
+
+# Read Tube-Normalized CSV (includes noramlized filenames and mRatio values)
+df = pd.read_csv(fpath_norm_csv)
 
 norm_filenames = list(df.iloc[:, df.columns.get_loc('filename')].copy())
 mratio = list(df.iloc[:, df.columns.get_loc('mRatio')].copy())
@@ -55,7 +70,7 @@ for key in diff:
 
 # %% Importing and Defining Atlas legend dictionary
 # Atlas dictionary associates brain region abbreviation and its associates label value 
-os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections") # Location of 'CHASSSYMM3AtlasLegends.csv'
+os.chdir(fpath_main) # Location of 'CHASSSYMM3AtlasLegends.csv'
 df = pd.read_csv('index.csv') # index.csv = CHASSSYMM3AtlasLegends.csv
 abbreviation = df.iloc[:, df.columns.get_loc('Abbreviation')].copy()
 hemisphere = df.iloc[:, df.columns.get_loc('Hemisphere')].copy()
@@ -79,10 +94,10 @@ for k in range(0, len(abb_updated)-1):
 
 # %% Begin main for loop
 for x in data_lab_dict:
-    example_filename = os.path.join(file_path, x)
-    label_filename = os.path.join(file_path, data_lab_dict[x][0])
+    example_filename = os.path.join(fpath_dat, x)
+    label_filename = os.path.join(fpath_dat, data_lab_dict[x][0])
 
-# %% Whole-Brain Data processing
+    # Whole-Brain Data processing
     img = nib.load(example_filename)
     lab = nib.load(label_filename)
 
@@ -92,7 +107,7 @@ for x in data_lab_dict:
     
     # Save normalized brain volumes to below folder
     newname = x[0:-7]  + '_norm' + '.nii.gz'
-    os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//Normalized") # Location of normalized brain volumes
+    os.chdir(fpath_norm) # Location of normalized brain volumes
     nib.save(nib.Nifti1Image(data, img.affine), newname)
     
     labels = lab.get_fdata()
@@ -103,22 +118,22 @@ for x in data_lab_dict:
 
     # Save masked noramlized brain volume to below folder
     newname = x[0:-7]  + '_mask' + '.nii.gz'
-    os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//BINARY MASK") # Location of masked normalized brain volumes
+    os.chdir(fpath_binmask) # Location of masked normalized brain volumes
     nib.save(nib.Nifti1Image(brain_bin, lab.affine), newname)
 
 # %% Bias field Correction
 # Run in local system 
-os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections")
+os.chdir(fpath_main)
 os.system('bash loopscript.sh')    
 
 # %% Find Regional mean values
-filenames = next(os.walk("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//BFCANTS"), (None, None, []))[2]
+filenames = next(os.walk(fpath_bfc_img), (None, None, []))[2]
 
 for x in filenames:
     # Load Bias Field Corrected (BFC) volumes
     lab_fname = x[:-22]+'.nii.gz'
-    img = nib.load(os.path.join("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//BFCANTS", x)) # Location of BFC volumes
-    lab = nib.load(os.path.join(file_path, data_lab_dict[lab_fname][0]))
+    img = nib.load(os.path.join(fpath_bfc_img, x)) # Location of BFC volumes
+    lab = nib.load(os.path.join(fpath_dat, data_lab_dict[lab_fname][0]))
     
     corrected_image = img.get_fdata()
     
@@ -136,13 +151,13 @@ for x in filenames:
     
     # Save CSV indicating regional mean values for each brain
     newname = x[0:-22]  + '_df' + '.csv'
-    os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//REGIONAL DATA")
+    os.chdir(fpath_reg_csv)
     reg_df.to_csv(newname, encoding='utf-8')
     
     print(x[0:-7] + " DONE")
 
 # %% Generate output CSVs
-os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections//REGIONAL DATA")
+os.chdir(fpath_reg_csv)
 
 output_mi = []
 output_vv = []
@@ -272,13 +287,13 @@ for x in data_lab_dict:
 cols = product(regs_abbrev, ['Mean_int', 'Z-score'])
 columnsarr = pd.MultiIndex.from_tuples([('Filename',''), ('ID','')]+list(cols))
 
-os.chdir("/mnt//d//Personal//School//Duke//2021-2022//Bass Connections")
+os.chdir(fpath_main)
 out_df_mi = pd.DataFrame(output_mi, columns=columnsarr)
 out_df_mi.to_csv('meanintensities.csv', encoding='utf-8')
 
 out_df_vv.to_csv('voxelvolumes.csv', encoding='utf-8')
 
-# %% Important info
+# %% Print Nan Regions
 print("Nan regions:")
 for k in reg_del:
     print(k)
