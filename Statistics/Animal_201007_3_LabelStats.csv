@@ -1,0 +1,3 @@
+Label Id,Label Name,Number Of Voxels,Volume (mm^3),Image mean (Animal_201007),Image stdev (Animal_201007)
+0,Clear Label,3597240,3597.24,0.145855,0.15062
+1,Label 1,2760,2.76,0.486662,0.0868029

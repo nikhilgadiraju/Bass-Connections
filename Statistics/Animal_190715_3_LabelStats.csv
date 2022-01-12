@@ -1,0 +1,3 @@
+Label Id,Label Name,Number Of Voxels,Volume (mm^3),Image mean (Animal_190715_3_B50017_2_1_T1_RARE_MEMRI_apoe_roomtemp),Image stdev (Animal_190715_3_B50017_2_1_T1_RARE_MEMRI_apoe_roomtemp)
+0,Clear Label,3597368,3597.37,0.249607,0.18056
+1,Label 1,2632,2.632,0.667357,0.0715509

@@ -1,0 +1,3 @@
+Label Id,Label Name,Number Of Voxels,Volume (mm^3),Image mean (Animal_191212_7_99_1_T1_RARE_MEMRI_22mins),Image stdev (Animal_191212_7_99_1_T1_RARE_MEMRI_22mins)
+0,Clear Label,3596709,3596.71,0.174893,0.163797
+1,Label 1,3291,3.291,0.570194,0.111231

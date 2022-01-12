@@ -1,0 +1,6 @@
+Label Id,Label Name,Number Of Voxels,Volume (mm^3),Image mean (200805_4_53_1_T1_RARE_MEMRI_apoe100um_roomtemp),Image stdev (200805_4_53_1_T1_RARE_MEMRI_apoe100um_roomtemp)
+0,Clear Label,3599298,3599.3,0.235617,0.206469
+1,Label 1,216,0.216,0.526081,0.0556061
+2,Label 2,191,0.191,0.576607,0.0685653
+3,Label 3,295,0.295,0.763944,0.129726
+,Average,234,0.234,0.622210667,0.084632467
