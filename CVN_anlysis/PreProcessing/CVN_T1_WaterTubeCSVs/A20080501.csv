@@ -1,0 +1,3 @@
+Label Id,Label Name,Number Of Voxels,Volume (mm^3),Image mean (A20080501_T1_unmasked),Image stdev (A20080501_T1_unmasked)
+0,Clear Label,3598804,3598.8,0.258439,0.214105
+1,Label 1,1196,1.196,0.720492,0.0880308
